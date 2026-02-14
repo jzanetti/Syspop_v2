@@ -1,0 +1,10 @@
+etc/api_keys.py
+*.pyc
+test.png
+test.py
+.vscode
+output
+archive
+test
+*.p
+*.log
