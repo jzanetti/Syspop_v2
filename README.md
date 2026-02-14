@@ -9,3 +9,5 @@ The package can be installed as:
 ```
 mamba env create -f env.yml
 ```
+
+Details can be found: https://github.com/jzanetti/Syspop_v2/wiki
