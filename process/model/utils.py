@@ -19,7 +19,7 @@ def create_input_data(input_data: pdDataFrame, deps_cols: list, data_range: dict
     return {"data_in_range": df1[deps_cols], "data_out_range": df2[deps_cols]}
 
 
-def create_deps_charts(models_cfg: dict, output_dir: str = "./output"):
+def check_deps_charts(models_cfg: dict, output_dir: str = "./output"):
     # Create directed graph
     dot = Digraph(format="png")
     dot.attr(rankdir="LR", size="8,5")

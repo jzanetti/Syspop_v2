@@ -5,6 +5,7 @@ from sklearn.model_selection import train_test_split
 from xgboost import XGBClassifier
 import numpy as np
 from process.data.data import prepare_model_data
+from sklearn.metrics import confusion_matrix
 
 
 def model_train(
@@ -60,6 +61,10 @@ def model_train(
 
     model.fit(X_train[deps_cols], y_train)
 
+    # --- Calculate Accuracy ---
+    y_pred = model.predict(X_test[deps_cols])
+    confusion_score = confusion_matrix(y_test, y_pred).tolist()
+
     # --- Get data range for training ---
     data_range = {}
     for col in deps_cols:
@@ -70,6 +75,7 @@ def model_train(
         "data_range": data_range,
         "target_encoder": model_data["target_encoder"],
         "test_data": {"x": X_test, "y": y_test},
+        "confusion_score": confusion_score,
         "deps_cols": deps_cols,
         "target_cols": target_cols,
     }

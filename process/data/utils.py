@@ -21,13 +21,19 @@ def obtain_api_key(api_key: str or None):
     return api_key
 
 
-def create_data_info(data_dict: dict, output_dir: str or None = None):
+def check_data_consistency(
+    data_dict: dict, check_err: bool = True, output_dir: str or None = None
+):
     rows = []
 
     for key, df in data_dict.items():
         for col in df.columns:
             unique_list = df[col].unique()
             unique_str = ", ".join(map(str, unique_list))
+            unique_str = [item.strip() for item in unique_str.split(",")]
+            unique_str.sort()
+            unique_str = ", ".join(unique_str)
+
             unique_count = len(unique_list)
             rows.append(
                 {
@@ -40,4 +46,35 @@ def create_data_info(data_dict: dict, output_dir: str or None = None):
 
     summary_df = DataFrame(rows)
     if output_dir is not None:
-        summary_df.to_csv(f"{output_dir}/data_info.csv", index=False)
+        summary_df.to_csv(f"{output_dir}/data_consistency.csv", index=False)
+
+    if check_err:
+        all_cols = summary_df["cols"].unique()
+
+        for proc_col in all_cols:
+            proc_series = summary_df[summary_df["cols"] == proc_col]["unique_value"]
+
+            proc_series = [set(val.split(", ")) for val in proc_series]
+
+            all_same = all(s == proc_series[0] for s in proc_series)
+
+            if not all_same:
+                print(
+                    summary_df[summary_df["cols"] == proc_col][
+                        ["data_key", "cols", "unique_value"]
+                    ]
+                )
+                # Ask the user if they want to continue
+                user_choice = (
+                    input(
+                        f"\nColumn '{proc_col}' has different unique values "
+                        + "across datasets. Continue? [Y/N]: "
+                    )
+                    .strip()
+                    .upper()
+                )
+                if user_choice != "Y":
+                    raise ValueError(
+                        f"Execution halted by user. Column '{proc_col}' has "
+                        + "different unique values across datasets."
+                    )
