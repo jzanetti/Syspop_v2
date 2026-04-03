@@ -1,6 +1,6 @@
 # Stochastic Impute: Synthetic Data Generation Engine
 
-A Python utility designed to generate **synthetic population data** and perform **probabilistic imputation** using aggregated public data sources (e.g., from [Stats NZ Data Explorer](https://explore.data.stats.govt.nz)).
+A Python utility designed to generate an **integreated synthetic unit record population data** using aggregated public data sources (e.g., from [Stats NZ Data Explorer](https://explore.data.stats.govt.nz)).
 
 This tool is optimized for large-scale microdata generation where individual attributes are assigned based on conditional probability distributions.
 
@@ -67,3 +67,10 @@ synthetic_data = stochastic_impute(
     output_dir="./synthetic_output"
 )
 ```
+
+## 🧠 FAQ
+### Is generating synthetic unit-record data in this way actually accurate?
+Well, it depends on your use case and the quality of your inputs. Ideally, you should work with real unit-record data. However, in practice, this isn't always feasible (i.e., in New Zealand, if you live far away from a Stats NZ IDI data lab). This utility provides a method to statistically link different aggregated, published population benchmarks together. This allows you to build out full data pipelines and prototype products locally before taking your code into a restricted environment.
+
+### Maximizing Accuracy?
+The accuracy of the synthetic output depends heavily on task design. The more shared variables (covariates) present in your reference data to condition the probabilities, the closer the synthetic distribution will mirror reality.

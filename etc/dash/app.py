@@ -3,7 +3,7 @@ import plotly.express as px
 from dash import Dash, html, dcc, Input, Output
 from pandas import read_parquet
 
-df = read_parquet("output/results.parquet")
+df = read_parquet("output/stochastic_imputed_data.parquet")
 
 # Initialize the Dash app
 app = Dash(__name__)
