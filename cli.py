@@ -11,12 +11,12 @@ output_dir = "./output"
 if not os_path_exists(output_dir):
     os_makedirs(output_dir)
 
-data = load_sample_data()
+data = load_sample_data(refresh=True)
 
 with open("config.yml", "r") as fid:
     cfg = safe_load(fid)
 
-proc_data = data["pop"].copy()
+proc_data = data["seed"].copy()
 task_list = obtain_all_tasks(cfg["tasks"], cfg["cfg"])
 
 syn_pop = stochastic_impute(proc_data, data, task_list, output_dir=output_dir)

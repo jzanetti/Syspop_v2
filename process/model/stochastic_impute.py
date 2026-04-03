@@ -93,8 +93,7 @@ def stochastic_impute(
                     {"existing": result_df[proc_target], "new": new_col}
                 )
 
-                use_mean = False  # Set to False if you want to prioritize new values over existing ones
-                if use_mean:
+                if proc_targets[proc_target] != "category":
                     result_df[proc_target] = combined_df.mean(axis=1, skipna=True)
                 else:
                     result_df[proc_target] = combined_df.apply(

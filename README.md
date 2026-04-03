@@ -14,6 +14,9 @@ This tool is optimized for large-scale microdata generation where individual att
 * **Dual-Source Integration**: If a target attribute already exists, the engine can blend the existing data with the synthetic prediction using row-wise averaging.
 * **Optimized Performance**: Processes millions rows in seconds by grouping identical "missingness patterns" rather than iterating row-by-row.
 
+> Please see the [FAQ](#-faq) for more details.
+
+
 ---
 
 ## 📋 Data Requirements
@@ -67,10 +70,13 @@ synthetic_data = stochastic_impute(
     output_dir="./synthetic_output"
 )
 ```
-
+<a name="faq"></a>
 ## 🧠 FAQ
 ### Is generating synthetic unit-record data in this way actually accurate?
 Well, it depends on your use case and the quality of your inputs. Ideally, you should work with real unit-record data. However, in practice, this isn't always feasible (i.e., in New Zealand, if you live far away from a Stats NZ IDI data lab). This utility provides a method to statistically link different aggregated, published population benchmarks together. This allows you to build out full data pipelines and prototype products locally before taking your code into a restricted environment.
 
-### Maximizing Accuracy?
+### Maximizing accuracy?
 The accuracy of the synthetic output depends heavily on task design. The more shared variables (covariates) present in your reference data to condition the probabilities, the closer the synthetic distribution will mirror reality.
+
+### Are we doing any prediction modelling here ?
+It is out of scope at the moment. If certain covariate values are missing from the reference data to condition the probabilities, the process simply ignores those missing values when linking the reference data to the seed data (for example, if the reference data does not contain income information for children, when integrating the reference data into the seed population data, the integrated data will just set the income for children as NaN). The reason is that many covariates in these datasets are categorical, and applying simple prediction models can struggle to capture the nuances and introduce unwanted noise or uncertainty into the output data. However, you are welcome to apply your own predictive models to handle missing data prior to running this process if your use case requires it.

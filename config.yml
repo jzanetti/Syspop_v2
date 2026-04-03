@@ -2,15 +2,15 @@ tasks: industry -> occupation -> occupation_income -> industry_income -> travel_
 cfg:
   industry:
     targets:
-      - industry
-      - work_status
+      industry: category
+      work_status: category
     features:
       - age
       - gender
       - location
   occupation:
     targets:
-      - occupation
+      occupation: category
     features:
       - age
       - gender
@@ -18,7 +18,7 @@ cfg:
       - industry
   occupation_income:
     targets:
-      - income
+      income: category
     features:
       - age
       - gender
@@ -26,7 +26,7 @@ cfg:
       - occupation
   industry_income:
     targets:
-      - income
+      income: category
     features:
       - age
       - gender
@@ -34,14 +34,14 @@ cfg:
       - industry
   travel_to_work:
     targets:
-      - travel_to_work
+      travel_to_work: category
     features:
       - age
       - gender
       - location
   work_hours:
     targets:
-      - work_hours
+      work_hours: category
     features:
       - age
       - gender

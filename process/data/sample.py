@@ -22,7 +22,7 @@ def obtain_sample_api_key(api_key: str or None = None):
 
 def load_sample_data(
     data_types: list = [
-        "pop",
+        "seed",
         "industry",
         "occupation",
         "occupation_income",
@@ -50,10 +50,10 @@ def load_sample_data(
         Exception: Propagates exceptions raised during API key retrieval or data fetching.
 
     Example:
-        >>> cfg_data = {"pop": {...}, "income": {...}}
+        >>> cfg_data = {"seed": {...}, "income": {...}}
         >>> result = obtain_data_wrapper(cfg_data, api_key="my_key", data_types=["pop", "income"])
         >>> print(result)
-        {'pop': <pop_data>, 'income': <income_data>}
+        {'seed': <pop_data>, 'income': <income_data>}
     """
 
     if not refresh:
@@ -68,7 +68,7 @@ def load_sample_data(
             log_info(f"Obtaining data for type: {data_type}")
 
             run_repeat = False
-            if data_type == "pop":
+            if data_type == "seed":
                 run_repeat = True
 
             data_dict[data_type] = obtain_data(
