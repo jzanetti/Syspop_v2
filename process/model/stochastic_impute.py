@@ -18,7 +18,9 @@ def get_target_values(group, prob_mapping):
         return pd.Series(np.nan, index=group.index)
 
 
-def stochastic_impute(pop_data, data_dict, task_list, output_dir=None):
+def stochastic_impute(
+    pop_data, data_dict, task_list, output_dir=None, output_filename=None
+):
     result_df = pop_data.copy()
 
     for proc_task in task_list:
@@ -90,12 +92,28 @@ def stochastic_impute(pop_data, data_dict, task_list, output_dir=None):
                 combined_df = pd.DataFrame(
                     {"existing": result_df[proc_target], "new": new_col}
                 )
-                result_df[proc_target] = combined_df.mean(axis=1, skipna=True)
+
+                use_mean = False  # Set to False if you want to prioritize new values over existing ones
+                if use_mean:
+                    result_df[proc_target] = combined_df.mean(axis=1, skipna=True)
+                else:
+                    result_df[proc_target] = combined_df.apply(
+                        lambda row: (
+                            np.random.choice(row.dropna().values)
+                            if row.notna().any()
+                            else np.nan
+                        ),
+                        axis=1,
+                    )
             else:
                 # If it doesn't exist yet, just assign the new column directly
                 result_df[proc_target] = new_col
 
     if output_dir is not None:
-        result_df.to_parquet(f"{output_dir}/stochastic_imputed_data.parquet")
+
+        if output_filename is None:
+            output_filename = "stochastic_imputed_data.parquet"
+
+        result_df.to_parquet(f"{output_dir}/{output_filename}")
 
     return result_df

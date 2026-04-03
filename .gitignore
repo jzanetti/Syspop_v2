@@ -9,3 +9,4 @@ test
 *.p
 *.log
 .DS_Store
+etc/sample_data/api_keys.py

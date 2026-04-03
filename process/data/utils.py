@@ -1,6 +1,5 @@
 from pandas import to_numeric
 from pandas import DataFrame
-from etc.api_keys import STATS_API
 
 
 def stats_data_proc(data: DataFrame, cfg: dict):
@@ -12,13 +11,6 @@ def stats_data_proc(data: DataFrame, cfg: dict):
     data["value"] = data["value"].astype(int)
 
     return data
-
-
-def obtain_api_key(api_key: str or None):
-    if api_key is None:
-        api_key = STATS_API
-
-    return api_key
 
 
 def check_data_consistency(
