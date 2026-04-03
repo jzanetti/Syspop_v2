@@ -36,6 +36,12 @@ def obtain_data_wrapper(
 
         log_info(f"Obtaining data for type: {data_type}")
 
-        data_dict[data_type] = obtain_data(cfg_data[data_type], api_key)
+        run_repeat = False
+        if data_type == "pop":
+            run_repeat = True
+
+        data_dict[data_type] = obtain_data(
+            cfg_data[data_type], api_key, run_repeat=run_repeat
+        )
 
     return data_dict

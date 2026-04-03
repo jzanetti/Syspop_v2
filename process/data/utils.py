@@ -22,7 +22,10 @@ def obtain_api_key(api_key: str or None):
 
 
 def check_data_consistency(
-    data_dict: dict, check_err: bool = True, output_dir: str or None = None
+    data_dict: dict,
+    check_err: bool = True,
+    throw_err: bool = False,
+    output_dir: str or None = None,
 ):
     rows = []
 
@@ -64,6 +67,12 @@ def check_data_consistency(
                         ["data_key", "cols", "unique_value"]
                     ]
                 )
+
+                if throw_err:
+                    raise ValueError(
+                        f"Column '{proc_col}' has different unique values across datasets."
+                    )
+
                 # Ask the user if they want to continue
                 user_choice = (
                     input(

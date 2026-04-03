@@ -1,10 +1,10 @@
 from yaml import safe_load
-from process.data_wrapper import obtain_data_wrapper
-from process.model_wrapper import run_model_train_wrapper, run_model_pred_wrapper
-from process.model.utils import check_deps_charts, obtain_all_tasks, obtain_cur_task
-from process.data.utils import check_data_consistency
+from process.data.data_wrapper import obtain_data_wrapper
+from process.model.utils import check_deps_charts, obtain_all_tasks
 from os.path import exists as os_path_exists
 from os import makedirs as os_makedirs
+from process.model.stochastic_impute import stochastic_impute
+from process.postp.vis import plot_distribution
 
 with open("config.yml", "r") as fid:
     cfg = safe_load(fid)
@@ -28,16 +28,13 @@ data = obtain_data_wrapper(
 )
 
 check_deps_charts(cfg["models"]["cfg"], output_dir=output_dir)
-check_data_consistency(data, output_dir=output_dir)
 
-for proc_task in obtain_all_tasks(cfg["models"]["tasks"]):
+proc_data = data["pop"].copy()
+task_list = obtain_all_tasks(cfg["models"]["tasks"], cfg["models"]["cfg"])
 
-    proc_task = obtain_cur_task(proc_task)
+syn_pop = stochastic_impute(proc_data, data, task_list, output_dir=output_dir)
 
-    run_model_train_wrapper(data, cfg["models"]["cfg"], data_types=proc_task)
-    run_model_pred_wrapper(
-        data,
-        data_types=proc_task,
-        postp_algorithm=cfg["models"].get("postp_algorithm", None),
-        output_dir=output_dir,
-    )
+
+plot_distribution(syn_pop, ["age"], output_dir=output_dir, dropna=True)
+plot_distribution(syn_pop, ["occupation"], output_dir=output_dir, dropna=True)
+plot_distribution(syn_pop, ["occupation", "income"], output_dir=output_dir, dropna=True)

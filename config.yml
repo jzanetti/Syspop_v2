@@ -1,7 +1,7 @@
 api_key: null
 
 models:
-  tasks: industry -> occupation -> [occupation_income, industry_income] -> [travel_to_work, work_hours]
+  tasks: industry -> occupation -> occupation_income -> industry_income -> travel_to_work -> work_hours
   # tasks: occupation -> [occupation_income, industry_income]
   postp_algorithm:
     income: between # options: average, between
@@ -214,3 +214,5 @@ tables:
         - "99"
       CEN23_OCC_002:
         - "99"
+  household_income_data1:
+    api: https://api.data.stats.govt.nz/rest/data/STATSNZ,CEN23_FHH_033,1.0/2023.9999.10+11+12+99+777+06+07+08+09+05+04+03+02+01+00.99.9+777+69+61+5+4+3+2+1+999.4+3+2+1+99?dimensionAtObservation=AllDimensions

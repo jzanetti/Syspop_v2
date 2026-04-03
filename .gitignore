@@ -8,3 +8,4 @@ archive
 test
 *.p
 *.log
+.DS_Store

@@ -4,7 +4,7 @@ from pandas import DataFrame as pdDataFrame
 from sklearn.preprocessing import LabelEncoder
 
 
-def obtain_data(cfg: dict, api_key: str):
+def obtain_data(cfg: dict, api_key: str, run_repeat: bool = True):
     """
     Obtains and processes population statistics data based on the provided configuration and API key.
 
@@ -52,48 +52,12 @@ def obtain_data(cfg: dict, api_key: str):
         pass
 
     df = data_pop[list(cfg["map"].values())]
-    df = df.loc[df.index.repeat(df["value"])].copy()
 
-    return df.reset_index(drop=True).drop(columns=["value"])
-
-
-def prepare_model_data(
-    df: pdDataFrame, deps_cols: list, target_cols: list or None = None
-):
-    """
-    Prepares data for modeling by encoding target columns and converting dependent columns to categorical dtype.
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The input dataframe containing the data.
-    deps_cols : list
-        List of column names to be used as dependent (feature) variables.
-    target_cols : list or None, optional
-        List of column names to be used as target variables. If None, target encoding is skipped.
-    Returns
-    -------
-    dict
-        A dictionary containing:
-            - 'X': pd.DataFrame of dependent columns with categorical dtype.
-            - 'y': pd.Series of encoded target values (if target_cols is provided), otherwise None.
-            - 'target_encoder': LabelEncoder instance used for encoding targets (if target_cols is provided), otherwise None.
-    Notes
-    -----
-    If multiple target columns are provided, their string representations are concatenated with underscores before encoding.
-    Dependent columns are converted to categorical dtype for modeling purposes.
-    """
-    y = None
-    target_encoder = None
-    if target_cols is not None:
-        df["target"] = df[target_cols].astype(str).agg("_".join, axis=1)
-        target_encoder = LabelEncoder()
-        df["target_encoded"] = target_encoder.fit_transform(df["target"])
-        y = df["target_encoded"]
-
-    # --- Convert dependent columns to categorical dtype ---
-    for col in deps_cols:
-        df[col] = df[col].astype("category")
-
-    X = df[deps_cols]
-
-    return {"X": X, "y": y, "target_encoder": target_encoder}
+    if run_repeat:
+        df = df.loc[df.index.repeat(df["value"])].copy()
+        return df.reset_index(drop=True).drop(columns=["value"])
+    else:
+        group_cols = df.columns.drop("value").tolist()
+        df_grouped = df.groupby(group_cols, as_index=False)["value"].sum()
+        df_grouped["probability"] = df_grouped["value"] / df_grouped["value"].sum()
+        return df_grouped.reset_index(drop=True).drop(columns=["value"])
