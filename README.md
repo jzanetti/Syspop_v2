@@ -78,5 +78,7 @@ Well, it depends on your use case and the quality of your inputs. Ideally, you s
 ### Maximizing accuracy?
 The accuracy of the synthetic output depends heavily on task design. The more shared variables (covariates) present in your reference data to condition the probabilities, the closer the synthetic distribution will mirror reality.
 
+Also, you can run the process multiple times to capture inherent uncertainties.
+
 ### Are we doing any prediction modelling here ?
 It is out of scope at the moment. If certain covariate values are missing from the reference data to condition the probabilities, the process simply ignores those missing values when linking the reference data to the seed data (for example, if the reference data does not contain income information for children, when integrating the reference data into the seed population data, the integrated data will just set the income for children as NaN). The reason is that many covariates in these datasets are categorical, and applying simple prediction models can struggle to capture the nuances and introduce unwanted noise or uncertainty into the output data. However, you are welcome to apply your own predictive models to handle missing data prior to running this process if your use case requires it.
