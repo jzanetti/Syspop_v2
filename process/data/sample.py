@@ -4,6 +4,7 @@ from etc.sample_data.api_keys import STATS_API
 from yaml import safe_load
 from pickle import dump as pickle_dump
 from pickle import load as pickle_load
+from process.model.utils import obtain_all_tasks
 
 
 def obtain_sample_data_cfg():
@@ -67,14 +68,13 @@ def load_sample_data(
 
             log_info(f"Obtaining data for type: {data_type}")
 
-            run_repeat = False
-            if data_type == "seed":
-                run_repeat = True
-
-            data_dict[data_type] = obtain_data(
-                cfg_data[data_type], api_key, run_repeat=run_repeat
-            )
+            data_dict[data_type] = obtain_data(cfg_data[data_type], api_key)
 
         pickle_dump(data_dict, open("etc/sample_data/sample_data.pkl", "wb"))
 
-    return data_dict
+    with open("etc/sample_data/sample_model_cfg.yml", "r") as fid:
+        model_cfg = safe_load(fid)
+
+    task_list = obtain_all_tasks(model_cfg["tasks"], model_cfg["cfg"])
+
+    return data_dict, task_list

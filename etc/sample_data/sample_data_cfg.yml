@@ -9,7 +9,9 @@ tables:
       OBS_VALUE: value
     inclusion:
       CEN23_GEO_002:
+        - "02"
         - "09"
+        - "13"
     exclusion:
       CEN23_ETH_006:
         - "7777"

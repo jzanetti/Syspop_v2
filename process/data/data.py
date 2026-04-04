@@ -4,7 +4,7 @@ from pandas import DataFrame as pdDataFrame
 from sklearn.preprocessing import LabelEncoder
 
 
-def obtain_data(cfg: dict, api_key: str, run_repeat: bool = True):
+def obtain_data(cfg: dict, api_key: str):
     """
     Obtains and processes population statistics data based on the provided configuration and API key.
 
@@ -53,11 +53,28 @@ def obtain_data(cfg: dict, api_key: str, run_repeat: bool = True):
 
     df = data_pop[list(cfg["map"].values())]
 
-    if run_repeat:
-        df = df.loc[df.index.repeat(df["value"])].copy()
-        return df.reset_index(drop=True).drop(columns=["value"])
-    else:
-        group_cols = df.columns.drop("value").tolist()
-        df_grouped = df.groupby(group_cols, as_index=False)["value"].sum()
-        df_grouped["probability"] = df_grouped["value"] / df_grouped["value"].sum()
-        return df_grouped.reset_index(drop=True).drop(columns=["value"])
+    return df
+
+
+def encode_weights(data_dict) -> dict:
+
+    for key in data_dict:
+
+        run_repeat = False
+        if key == "seed":
+            run_repeat = True
+
+        df = data_dict[key]
+
+        if run_repeat:
+            df = df.loc[df.index.repeat(df["value"])].copy()
+            df = df.reset_index(drop=True).drop(columns=["value"])
+        else:
+            group_cols = df.columns.drop("value").tolist()
+            df_grouped = df.groupby(group_cols, as_index=False)["value"].sum()
+            df_grouped["probability"] = df_grouped["value"] / df_grouped["value"].sum()
+            df = df_grouped.reset_index(drop=True).drop(columns=["value"])
+
+        data_dict[key] = df
+
+    return data_dict

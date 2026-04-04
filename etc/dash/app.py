@@ -14,6 +14,7 @@ for col_name, mapping_df in mapping_data.items():
 
 
 for proc_col in [
+    "location",
     "age",
     "gender",
     "work_hours",
@@ -52,7 +53,7 @@ app.layout = html.Div(
         html.Span("  Download data: "),
         html.A(
             "Synthetic Data in parquet format",
-            href="https://github.com/jzanetti/Syspop_v2/etc/sample_data/stochastic_imputed_data.parquet",
+            href="https://github.com/jzanetti/Syspop_v2/raw/refs/heads/main/etc/sample_data/stochastic_imputed_data.parquet",
             target="_blank",  # Opens link in a new tab
             style={"color": "#007bff", "textDecoration": "underline"},
         ),

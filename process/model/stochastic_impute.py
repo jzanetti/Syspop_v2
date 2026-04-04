@@ -1,5 +1,9 @@
 import pandas as pd
 import numpy as np
+from process.data.data import encode_weights
+from os.path import exists as os_path_exists
+from os import makedirs as os_makedirs
+from process.model.utils import check_deps_charts
 
 
 def get_target_values(group, prob_mapping):
@@ -19,9 +23,15 @@ def get_target_values(group, prob_mapping):
 
 
 def stochastic_impute(
-    pop_data, data_dict, task_list, output_dir=None, output_filename=None
+    data_dict,
+    task_list,
+    output_dir="./output",
+    output_filename="stochastic_imputed_data.parquet",
 ):
-    result_df = pop_data.copy()
+
+    data_dict = encode_weights(data_dict)
+
+    result_df = data_dict["seed"].copy()
 
     for proc_task in task_list:
 
@@ -110,8 +120,9 @@ def stochastic_impute(
 
     if output_dir is not None:
 
-        if output_filename is None:
-            output_filename = "stochastic_imputed_data.parquet"
+        if not os_path_exists(output_dir):
+            os_makedirs(output_dir)
+        check_deps_charts(task_list, output_dir=output_dir)
 
         result_df.to_parquet(f"{output_dir}/{output_filename}")
 

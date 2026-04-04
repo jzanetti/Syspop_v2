@@ -8,6 +8,7 @@ This tool is optimized for large-scale microdata generation where individual att
 
 ## 🚀 Key Features
 
+* **Synthetic Unit Record Generation**: Transforms multiple aggregated data sources into a unified, granular unit-record dataset.
 * **Dynamic Column Matching**: Automatically identifies shared features between the base population and reference data.
 * **Missingness-Aware Logic**: Handles rows with `NaN` values by dynamically re-calculating probabilities based only on the available non-null features.
 * **Stochastic Selection**: Uses weighted random sampling to preserve the natural variance and distribution of the source data.
@@ -21,55 +22,82 @@ This tool is optimized for large-scale microdata generation where individual att
 
 ## 📋 Data Requirements
 
-### 1. Population Seed (`pop_data`)
+### 1. Population Seed
 The starting point for your synthetic data. 
 * Can contain existing columns you wish to "refine."
 * Can contain `NaN` values; the engine will ignore these specific columns during matching for those specific rows.
 
-### 2. Reference Distributions (`data_dict`)
+### 2. Reference Distributions
 Each entry in the dictionary must be a DataFrame containing:
 * **Shared Features**: (e.g., `age`, `location`) to match against the seed.
 * **Target Column**: The attribute being generated.
-* **Probability Column**: A numeric column named **`probability`** representing the weight of that occurrence.
 
 ---
 
 ## 💻 Example Usage
 
 ```python
-import pandas as pd
-from process.model import stochastic_impute
+from pandas import DataFrame
+from numpy import nan
+from process.model.stochastic_impute import stochastic_impute
+from process.postp.vis import plot_distribution
 
-# 1. Prepare base population
-pop = pd.DataFrame({
-    'gender': [1, 2, 1],
-    'age': [25, 30, np.nan] # Age is missing for the last person
-})
+# ---------------------------------
+# 1. Define base aggregated population data (e.g., from a census)
+#    For example, a total of 50 + 60 + 70 people in this example
+# ---------------------------------
+base_population_data = DataFrame(
+    {
+        "gender": [1, 2, 1],
+        "age": [25, 30, 40],
+        "value": [50, 60, 70],
+    }
+)
 
-# 2. Define reference data (e.g., Work Status distribution)
-work_ref = pd.DataFrame({
-    'gender': [1, 1, 2, 2],
-    'work_status': [1, 2, 1, 2],
-    'probability': [0.8, 0.2, 0.6, 0.4]
-})
+# ---------------------------------
+# 2. Define reference aggregated data (e.g., Work Status distribution)
+#    For example, a total of 8 + 2 + 6 + 4 people in this reference data
+# ---------------------------------
+income_data = DataFrame(
+    {
+        "gender": [1, 1, 2, 2],
+        "age": [25, 30, 25, nan],
+        "work_status": [1, 2, 1, 2],
+        "income": [50000, 60000, 55000, 45000],
+        "value": [8, 2, 6, 4],
+    }
+)
 
-data_sources = {"work_task": work_ref}
+# ---------------------------------
+# 3. Combine data into a dictionary for the imputation process
+# ---------------------------------
+data = {"seed": base_population_data, "income": income_data}
 
-# 3. Define the configuration
-tasks = {
-    "work_task": {
-        "targets": ["work_status"]
+# ---------------------------------
+# 4. Define the imputation tasks:
+#   - For the "income" task, we want to impute both "work_status" and "income" based on "age" and "gender
+# ---------------------------------
+task_list = {
+    "income": {
+        "targets": {"work_status": "category", "income": "numeric"},
+        "features": ["age", "gender"],
     }
 }
 
-# 4. Execute
-synthetic_data = stochastic_impute(
-    pop_data=pop,
-    data_dict=data_sources,
-    task_list=tasks,
-    output_dir="./synthetic_output"
-)
+# ---------------------------------
+# 5. Run the stochastic imputation process
+# ---------------------------------
+syn_pop = stochastic_impute(data, task_list)
+
+# ---------------------------------
+# 6. Plot distribution
+# ---------------------------------
+# 6.1 Plot distribution for age
+plot_distribution(syn_pop, ["age"])
+# 6.2 Plot joint distribution for gender + age
+plot_distribution(syn_pop, ["gender", "age"])
 ```
+
 <a name="faq"></a>
 ## 🧠 FAQ
 ### Is generating synthetic unit-record data in this way actually accurate?
