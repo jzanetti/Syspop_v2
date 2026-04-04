@@ -4,6 +4,32 @@ from dash import Dash, html, dcc, Input, Output
 from pandas import read_parquet
 
 df = read_parquet("output/stochastic_imputed_data.parquet")
+mapping_data = pd.read_excel("etc/sample_data/mapping.xlsx", sheet_name=None)
+
+mappings = {}
+for col_name, mapping_df in mapping_data.items():
+    mappings[col_name] = mapping_df.set_index(mapping_df.columns[0])[
+        mapping_df.columns[1]
+    ].to_dict()
+
+
+for proc_col in [
+    "age",
+    "gender",
+    "work_hours",
+    "travel_to_work",
+    "work_status",
+    "occupation",
+    "income",
+    "ethnicity",
+]:
+    df[proc_col] = pd.to_numeric(df[proc_col], errors="coerce").astype("Int64")
+
+for col in df.columns:
+    if col in mappings:
+        # map() replaces values based on the dict.
+        # Rows without a match in the dict will become NaN unless handled.
+        df[col] = df[col].map(mappings[col]).fillna(df[col])
 
 # Initialize the Dash app
 app = Dash(__name__)
@@ -15,11 +41,26 @@ columns = df.columns.tolist()
 app.layout = html.Div(
     style={"fontFamily": "Arial, sans-serif", "padding": "20px"},
     children=[
-        html.H2("Conditional Distribution Analysis"),
+        html.H2("Synthetic Population Distribution Analysis"),
+        html.Span("Check out the source code here: "),
+        html.A(
+            "Syspop Repository",
+            href="https://github.com/jzanetti/Syspop_v2",
+            target="_blank",  # Opens link in a new tab
+            style={"color": "#007bff", "textDecoration": "underline"},
+        ),
+        html.Span("  Download data: "),
+        html.A(
+            "Synthetic Data in parquet format",
+            href="https://github.com/jzanetti/Syspop_v2/etc/sample_data/stochastic_imputed_data.parquet",
+            target="_blank",  # Opens link in a new tab
+            style={"color": "#007bff", "textDecoration": "underline"},
+        ),
+        html.Hr(style={"marginBottom": "20px"}),
         # Target Column Selector
         html.Div(
             [
-                html.Label(html.B("1. Select Target Column to Plot:")),
+                html.Label(html.B("1. Select a Variable:")),
                 dcc.Dropdown(
                     id="target-column",
                     options=[{"label": col, "value": col} for col in columns],
@@ -29,7 +70,6 @@ app.layout = html.Div(
             ],
             style={"width": "30%", "marginBottom": "30px"},
         ),
-        html.Hr(),
         html.Label(html.B("2. Filter by ONE Condition (others will be disabled):")),
         # Dynamic generation of filter dropdowns
         html.Div(
